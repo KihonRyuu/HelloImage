@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity
     private ImageAdapter mImageAdapter;
     private List<Api.Response.SearchImages.Hits> mData;
     private Menu mMenu;
+    private String mSearchQuery = "Taiwan Street";
+    private Api.Response.SearchImages mResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +55,10 @@ public class MainActivity extends AppCompatActivity
         configRecyclerView();
         setListeners();
 
-        Api.RequestBody.SearchImages params = new Api.RequestBody.SearchImages();
-        params.setQuery("Taiwan Street");
+        getImages(new Api.RequestBody.SearchImages().setQuery(mSearchQuery));
+    }
+
+    private void getImages(Api.RequestBody.SearchImages params) {
         ApiRequest.searchImages(params, new Api.Callback<Api.Response.SearchImages>() {
             @Override
             public void onResponse(Call<Api.Response.SearchImages> call, Response<Api.Response.SearchImages> response) {
@@ -62,11 +66,54 @@ public class MainActivity extends AppCompatActivity
                 if (response.body() == null || response.body().hits == null || response.body().hits.size() == 0) {
                     return;
                 }
-                mData = response.body().hits;
-                mImageAdapter = new ImageAdapter(MainActivity.this, response.body().hits);
-                mRecyclerView.setAdapter(mImageAdapter);
+                mResult = response.body();
+                if (mData != null && mData.size() > 0) {
+                    int original = mData.size();
+                    mData.addAll(mResult.hits);
+                    mImageAdapter.notifyItemRangeInserted(original, mResult.hits.size());
+                } else {
+                    mData = mResult.hits;
+                    mImageAdapter = new ImageAdapter(MainActivity.this, mResult.hits);
+                    mRecyclerView.setAdapter(mImageAdapter);
+                }
             }
         });
+    }
+
+    private void configRecyclerView() {
+        mRecyclerView.setItemViewCacheSize(20);
+        mRecyclerView.setDrawingCacheEnabled(true);
+        mRecyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        mRecyclerView.setNestedScrollingEnabled(false);
+        mRecyclerView.setHasFixedSize(false);
+        int spacing = (int) Utils.convertDpToPixel(6);
+        mRecyclerView.addItemDecoration(new SpacesItemDecoration(spacing));
+        mRecyclerView.setLayoutManager(createStaggeredGridLayoutManager());
+        StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) mRecyclerView.getLayoutManager();
+        mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public int getFooterViewType(int defaultNoFooterViewType) {
+                return ImageAdapter.VIEW_TYPE_LOADING;
+            }
+
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                if (totalItemsCount < mResult.totalHits) {
+                    Api.RequestBody.SearchImages requestBody = new Api.RequestBody.SearchImages();
+                    requestBody.setQuery(mSearchQuery);
+                    requestBody.setPage(++page);
+                    getImages(requestBody);
+                }
+            }
+        });
+    }
+
+    private void configSearchView() {
+        mSearchView.setVoiceSearch(false);
+        mSearchView.setCursorDrawable(R.drawable.custom_cursor);
+        mSearchView.setEllipsize(true);
+        mSearchView.setOnQueryTextListener(this);
+        mSearchView.setOnSearchViewListener(this);
     }
 
     private void setListeners() {
@@ -84,25 +131,6 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-    }
-
-    private void configRecyclerView() {
-        mRecyclerView.setItemViewCacheSize(20);
-        mRecyclerView.setDrawingCacheEnabled(true);
-        mRecyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-        mRecyclerView.setNestedScrollingEnabled(false);
-        mRecyclerView.setHasFixedSize(false);
-        int spacing = (int) Utils.convertDpToPixel(6);
-        mRecyclerView.addItemDecoration(new SpacesItemDecoration(spacing));
-        mRecyclerView.setLayoutManager(createStaggeredGridLayoutManager());
-    }
-
-    private void configSearchView() {
-        mSearchView.setVoiceSearch(false);
-        mSearchView.setCursorDrawable(R.drawable.custom_cursor);
-        mSearchView.setEllipsize(true);
-        mSearchView.setOnQueryTextListener(this);
-        mSearchView.setOnSearchViewListener(this);
     }
 
     @Override
@@ -150,6 +178,7 @@ public class MainActivity extends AppCompatActivity
         if (mSearchView.isSearchOpen()) {
             mSearchView.closeSearch();
         }
+        mSearchQuery = s;
         return false;
     }
 

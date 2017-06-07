@@ -44,9 +44,22 @@ public abstract class Api {
         public static class SearchImages extends RequestBody {
             @SerializedName("q")
             String query;
+            Integer page;
+            @SerializedName("perPage")
+            Integer perPage;
 
             public SearchImages setQuery(String query) {
                 this.query = query;
+                return this;
+            }
+
+            public SearchImages setPage(int page) {
+                this.page = page;
+                return this;
+            }
+
+            public SearchImages setPerPage(int perPage) {
+                this.perPage = perPage;
                 return this;
             }
         }

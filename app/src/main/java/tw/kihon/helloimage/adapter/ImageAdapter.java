@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -24,6 +25,9 @@ import tw.kihon.helloimage.util.Utils;
  */
 
 public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    public static final int VIEW_TYPE_LOADING = 0;
+    public static final int VIEW_TYPE_ACTIVITY = 1;
 
     private final WeakReference<Context> mContext;
     private final LayoutInflater mLayoutInflater;
@@ -44,7 +48,13 @@ public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ItemViewHolder(mLayoutInflater.inflate(R.layout.list_item_image, parent, false));
+        if (viewType == VIEW_TYPE_LOADING) {
+            return new ProgressViewHolder(mLayoutInflater.inflate(R.layout.list_item_progress, parent, false));
+        } else if (viewType == VIEW_TYPE_ACTIVITY) {
+            return new ItemViewHolder(mLayoutInflater.inflate(R.layout.list_item_image, parent, false));
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -61,6 +71,8 @@ public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             imageViewHolder.imageView.getLayoutParams().height = displayHeight;
             imageViewHolder.imageView.getLayoutParams().width = displayWidth;
             Picasso.with(mContext.get()).load(item.previewURL).into(imageViewHolder.imageView);
+        } else {
+            ((ProgressViewHolder) viewHolder).progressBar.setIndeterminate(true);
         }
     }
 
@@ -69,6 +81,22 @@ public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return mData.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return (position >= mData.size()) ? VIEW_TYPE_LOADING : VIEW_TYPE_ACTIVITY;
+    }
+
+    public class ProgressViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(android.R.id.progress)
+        ProgressBar progressBar;
+
+        public ProgressViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+
+        }
+    }
     public class ItemViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.imageView)
