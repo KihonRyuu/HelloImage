@@ -4,7 +4,9 @@ import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity
 
     private ImageAdapter mImageAdapter;
     private List<Api.Response.SearchImages.Hits> mData;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +65,8 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setHasFixedSize(false);
         int spacing = (int) Utils.convertDpToPixel(6);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(spacing));
-        StaggeredGridLayoutManager layoutManager =
-                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
-        mRecyclerView.setLayoutManager(layoutManager);
+        mLayoutManager = createStaggeredGridLayoutManager();
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
         Api.RequestBody.SearchImages params = new Api.RequestBody.SearchImages();
         params.setQuery("Taiwan Street");
@@ -102,9 +104,41 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem item = menu.findItem(R.id.action_search);
+        mMenu = menu;
+        MenuItem item = mMenu.findItem(R.id.action_search);
         mSearchView.setMenuItem(item);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch(id){
+            case R.id.action_swap:
+                if (mRecyclerView.getLayoutManager() instanceof StaggeredGridLayoutManager) {
+                    if (mMenu != null) {
+                        mMenu.findItem(R.id.action_swap).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_view_compact_24dp));
+                    }
+                    mRecyclerView.setLayoutManager(createLinearLayoutManager());
+                } else if (mRecyclerView.getLayoutManager() instanceof LinearLayoutManager) {
+                    if (mMenu != null) {
+                        mMenu.findItem(R.id.action_swap).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_view_list_24dp));
+                    }
+                    mRecyclerView.setLayoutManager(createStaggeredGridLayoutManager());
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private RecyclerView.LayoutManager createStaggeredGridLayoutManager() {
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        return layoutManager;
+    }
+
+    private RecyclerView.LayoutManager createLinearLayoutManager() {
+        return new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
     }
 
     @Override
