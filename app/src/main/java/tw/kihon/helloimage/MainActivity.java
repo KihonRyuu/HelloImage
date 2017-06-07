@@ -2,6 +2,7 @@ package tw.kihon.helloimage;
 
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +11,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     MaterialSearchView mSearchView;
 
     private ImageAdapter mImageAdapter;
+    private List<Api.Response.SearchImages.Hits> mData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +60,7 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setNestedScrollingEnabled(false);
         mRecyclerView.setHasFixedSize(false);
         int spacing = (int) Utils.convertDpToPixel(6);
-//        mRecyclerView.addItemDecoration(new SpacingDecorator(spacing, spacing, true));
+        mRecyclerView.addItemDecoration(new SpacesItemDecoration(spacing));
         StaggeredGridLayoutManager layoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
@@ -71,8 +75,25 @@ public class MainActivity extends AppCompatActivity
                 if (response.body() == null || response.body().hits == null || response.body().hits.size() == 0) {
                     return;
                 }
+                mData = response.body().hits;
                 mImageAdapter = new ImageAdapter(MainActivity.this, response.body().hits);
                 mRecyclerView.setAdapter(mImageAdapter);
+            }
+        });
+
+
+        ItemClickSupport.addTo(mRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+            @Override
+            public synchronized void onItemClicked(RecyclerView recyclerView, final int position, View v) {
+                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setSharedElementEnterTransition(new ChangeImageTransform(MainActivity.this, null));
+                }*/
+                Intent intent = new Intent(MainActivity.this, ImageActivity.class);
+                intent.putExtra("data", mData.get(position));
+//                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, v, "profile");
+//                startActivity(intent, options.toBundle());
+                startActivity(intent);
+
             }
         });
 

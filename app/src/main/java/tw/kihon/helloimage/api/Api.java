@@ -7,6 +7,8 @@ import com.google.gson.reflect.TypeToken;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.IOException;
@@ -86,7 +88,8 @@ public abstract class Api {
             @SerializedName("hits")
             public List<Hits> hits;
 
-            public static class Hits {
+            public static class Hits implements Parcelable {
+
                 /**
                  * id : 195893
                  * pageURL : https://pixabay.com/en/blossom-bloom-flower-yellow-close-195893/
@@ -153,6 +156,75 @@ public abstract class Api {
                 public String user;
                 @SerializedName("userImageURL")
                 public String userImageURL;
+
+                @Override
+                public int describeContents() {
+                    return 0;
+                }
+
+                @Override
+                public void writeToParcel(Parcel dest, int flags) {
+                    dest.writeInt(this.id);
+                    dest.writeString(this.pageURL);
+                    dest.writeString(this.type);
+                    dest.writeString(this.tags);
+                    dest.writeString(this.previewURL);
+                    dest.writeInt(this.previewWidth);
+                    dest.writeInt(this.previewHeight);
+                    dest.writeString(this.webformatURL);
+                    dest.writeInt(this.webformatWidth);
+                    dest.writeInt(this.webformatHeight);
+                    dest.writeInt(this.imageWidth);
+                    dest.writeInt(this.imageHeight);
+                    dest.writeInt(this.imageSize);
+                    dest.writeInt(this.views);
+                    dest.writeInt(this.downloads);
+                    dest.writeInt(this.favorites);
+                    dest.writeInt(this.likes);
+                    dest.writeInt(this.comments);
+                    dest.writeInt(this.userId);
+                    dest.writeString(this.user);
+                    dest.writeString(this.userImageURL);
+                }
+
+                public Hits() {
+                }
+
+                protected Hits(Parcel in) {
+                    this.id = in.readInt();
+                    this.pageURL = in.readString();
+                    this.type = in.readString();
+                    this.tags = in.readString();
+                    this.previewURL = in.readString();
+                    this.previewWidth = in.readInt();
+                    this.previewHeight = in.readInt();
+                    this.webformatURL = in.readString();
+                    this.webformatWidth = in.readInt();
+                    this.webformatHeight = in.readInt();
+                    this.imageWidth = in.readInt();
+                    this.imageHeight = in.readInt();
+                    this.imageSize = in.readInt();
+                    this.views = in.readInt();
+                    this.downloads = in.readInt();
+                    this.favorites = in.readInt();
+                    this.likes = in.readInt();
+                    this.comments = in.readInt();
+                    this.userId = in.readInt();
+                    this.user = in.readString();
+                    this.userImageURL = in.readString();
+                }
+
+                public static final Parcelable.Creator<Hits> CREATOR = new Parcelable.Creator<Hits>() {
+                    @Override
+                    public Hits createFromParcel(Parcel source) {
+                        return new Hits(source);
+                    }
+
+                    @Override
+                    public Hits[] newArray(int size) {
+                        return new Hits[size];
+                    }
+                };
             }
         }
     }
