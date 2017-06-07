@@ -21,7 +21,6 @@ public class HelloImageApplication extends Application {
 
     private static HelloImageApplication sInstance;
     private Gson mGson;
-    private Picasso mPicasso;
 
     public synchronized static HelloImageApplication getInstance() {
         return sInstance;
@@ -41,16 +40,12 @@ public class HelloImageApplication extends Application {
         super.onCreate();
         ApiRequest.initialize();
 
-        mPicasso = new Picasso.Builder(this)
+        Picasso picasso = new Picasso.Builder(this)
                 .memoryCache(new LruCache(24000))
                 .build();
-        mPicasso.setIndicatorsEnabled(true);
-        mPicasso.setLoggingEnabled(true);
-        Picasso.setSingletonInstance(mPicasso);
-    }
-
-    public Picasso getPicasso() {
-        return mPicasso;
+        picasso.setIndicatorsEnabled(true);
+        picasso.setLoggingEnabled(true);
+        Picasso.setSingletonInstance(picasso);
     }
 
     public Gson getGson() {

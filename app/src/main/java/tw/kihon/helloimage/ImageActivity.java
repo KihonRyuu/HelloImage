@@ -52,12 +52,12 @@ public class ImageActivity extends AppCompatActivity {
             public void onPrepareLoad(Drawable placeHolderDrawable) {
             }
         };
-        HelloImageApplication.getInstance().getPicasso().with(this).load(imageData.webformatURL).into(mTarget);
+        Picasso.with(this).load(imageData.webformatURL).into(mTarget);
     }
 
     @Override
     protected void onDestroy() {
-        HelloImageApplication.getInstance().getPicasso().cancelRequest(mTarget);
+        Picasso.with(this).cancelRequest(mTarget);
         super.onDestroy();
     }
 }

@@ -20,6 +20,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Response;
+import tw.kihon.helloimage.adapter.ImageAdapter;
 import tw.kihon.helloimage.api.Api;
 import tw.kihon.helloimage.api.ApiRequest;
 import tw.kihon.helloimage.util.Utils;
