@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity
 
     private ImageAdapter mImageAdapter;
     private List<Api.Response.SearchImages.Hits> mData;
-    private RecyclerView.LayoutManager mLayoutManager;
     private Menu mMenu;
 
     @Override
@@ -47,26 +46,11 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         Utils.getDefaultDisplay(this);
-
         setSupportActionBar(mToolbar);
-//        mToolbar.setTitleTextColor(Color.WHITE);
 
-        mSearchView.setVoiceSearch(false);
-        mSearchView.setCursorDrawable(R.drawable.custom_cursor);
-        mSearchView.setEllipsize(true);
-        mSearchView.setOnQueryTextListener(this);
-        mSearchView.setOnSearchViewListener(this);
-
-        mRecyclerView.setItemViewCacheSize(20);
-        mRecyclerView.setDrawingCacheEnabled(true);
-        mRecyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-
-        mRecyclerView.setNestedScrollingEnabled(false);
-        mRecyclerView.setHasFixedSize(false);
-        int spacing = (int) Utils.convertDpToPixel(6);
-        mRecyclerView.addItemDecoration(new SpacesItemDecoration(spacing));
-        mLayoutManager = createStaggeredGridLayoutManager();
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        configSearchView();
+        configRecyclerView();
+        setListeners();
 
         Api.RequestBody.SearchImages params = new Api.RequestBody.SearchImages();
         params.setQuery("Taiwan Street");
@@ -82,8 +66,9 @@ public class MainActivity extends AppCompatActivity
                 mRecyclerView.setAdapter(mImageAdapter);
             }
         });
+    }
 
-
+    private void setListeners() {
         ItemClickSupport.addTo(mRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public synchronized void onItemClicked(RecyclerView recyclerView, final int position, View v) {
@@ -98,7 +83,25 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+    }
 
+    private void configRecyclerView() {
+        mRecyclerView.setItemViewCacheSize(20);
+        mRecyclerView.setDrawingCacheEnabled(true);
+        mRecyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        mRecyclerView.setNestedScrollingEnabled(false);
+        mRecyclerView.setHasFixedSize(false);
+        int spacing = (int) Utils.convertDpToPixel(6);
+        mRecyclerView.addItemDecoration(new SpacesItemDecoration(spacing));
+        mRecyclerView.setLayoutManager(createStaggeredGridLayoutManager());
+    }
+
+    private void configSearchView() {
+        mSearchView.setVoiceSearch(false);
+        mSearchView.setCursorDrawable(R.drawable.custom_cursor);
+        mSearchView.setEllipsize(true);
+        mSearchView.setOnQueryTextListener(this);
+        mSearchView.setOnSearchViewListener(this);
     }
 
     @Override
@@ -113,16 +116,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch(id){
-            case R.id.action_swap:
+        switch (id) {
+            case R.id.action_switch:
                 if (mRecyclerView.getLayoutManager() instanceof StaggeredGridLayoutManager) {
                     if (mMenu != null) {
-                        mMenu.findItem(R.id.action_swap).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_view_compact_24dp));
+                        mMenu.findItem(R.id.action_switch).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_view_compact_24dp));
                     }
                     mRecyclerView.setLayoutManager(createLinearLayoutManager());
                 } else if (mRecyclerView.getLayoutManager() instanceof LinearLayoutManager) {
                     if (mMenu != null) {
-                        mMenu.findItem(R.id.action_swap).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_view_list_24dp));
+                        mMenu.findItem(R.id.action_switch).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_view_list_24dp));
                     }
                     mRecyclerView.setLayoutManager(createStaggeredGridLayoutManager());
                 }
