@@ -15,7 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity
     ViewGroup mMainLayout;
 
     private ImageAdapter mImageAdapter;
-    private List<Api.Response.SearchImages.Hits> mData;
+//    private List<Api.Response.SearchImages.Hits> mData;
     private Menu mMenu;
     private String mSearchQuery = "Taiwan Street";
     private Api.Response.SearchImages mResult;
@@ -75,14 +75,11 @@ public class MainActivity extends AppCompatActivity
                     return;
                 }
                 mResult = response.body();
-                if (mData != null && mData.size() > 0 && params.getPage() > 1) {
-                    int original = mData.size();
-                    mData.addAll(mResult.hits);
-                    mImageAdapter.notifyItemRangeInserted(original, mResult.hits.size());
+                if (mImageAdapter.getItemCount() > 0 && params.getPage() > 1) {
+                    mImageAdapter.putData(mResult.hits);
                 } else {
-                    mData = mResult.hits;
-                    mImageAdapter = new ImageAdapter(MainActivity.this, mResult.hits);
-                    mRecyclerView.setAdapter(mImageAdapter);
+                    mRecyclerView.scrollToPosition(0);
+                    mImageAdapter.setData(mResult.hits);
                 }
                 mProgressController.setLoading(false);
             }
@@ -98,8 +95,13 @@ public class MainActivity extends AppCompatActivity
         int spacing = (int) Utils.convertDpToPixel(6);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(spacing));
         mRecyclerView.setLayoutManager(createStaggeredGridLayoutManager());
-        StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) mRecyclerView.getLayoutManager();
-        mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
+
+        mImageAdapter = new ImageAdapter(MainActivity.this);
+        mImageAdapter.setData(new ArrayList<Api.Response.SearchImages.Hits>());
+        mRecyclerView.setAdapter(mImageAdapter);
+
+//        StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) mRecyclerView.getLayoutManager();
+        mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(mRecyclerView.getLayoutManager()) {
             @Override
             public int getFooterViewType(int defaultNoFooterViewType) {
                 return ImageAdapter.VIEW_TYPE_LOADING;
@@ -133,7 +135,7 @@ public class MainActivity extends AppCompatActivity
                     getWindow().setSharedElementEnterTransition(new ChangeImageTransform(MainActivity.this, null));
                 }*/
                 Intent intent = new Intent(MainActivity.this, ImageActivity.class);
-                intent.putExtra("data", mData.get(position));
+                intent.putExtra("data", mImageAdapter.getItem(position));
 //                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, v, "profile");
 //                startActivity(intent, options.toBundle());
                 startActivity(intent);
@@ -188,7 +190,6 @@ public class MainActivity extends AppCompatActivity
             mSearchView.closeSearch();
         }
         mSearchQuery = s;
-
         getImages(new Api.RequestBody.SearchImages().setQuery(mSearchQuery));
         return false;
     }

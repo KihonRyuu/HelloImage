@@ -34,10 +34,9 @@ public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private List<Api.Response.SearchImages.Hits> mData;
     private RecyclerView mRecyclerView;
 
-    public ImageAdapter(Context context, List<Api.Response.SearchImages.Hits> data) {
+    public ImageAdapter(Context context) {
         mContext = new WeakReference<>(context);
         mLayoutInflater = LayoutInflater.from(context);
-        mData = data;
     }
 
     @Override
@@ -84,6 +83,21 @@ public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public int getItemViewType(int position) {
         return (position >= mData.size()) ? VIEW_TYPE_LOADING : VIEW_TYPE_ACTIVITY;
+    }
+
+    public void setData(List<Api.Response.SearchImages.Hits> data) {
+        mData = data;
+        notifyDataSetChanged();
+    }
+
+    public void putData(List<Api.Response.SearchImages.Hits> data) {
+        int original = mData.size();
+        mData.addAll(data);
+        notifyItemRangeInserted(original, data.size());
+    }
+
+    public Api.Response.SearchImages.Hits getItem(int position) {
+        return mData.get(position);
     }
 
     public class ProgressViewHolder extends RecyclerView.ViewHolder {
