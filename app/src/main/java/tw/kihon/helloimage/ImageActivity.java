@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,8 +37,15 @@ public class ImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image);
         ButterKnife.bind(this);
 
+        if (getIntent() == null || getIntent().getParcelableExtra("data") == null) {
+            Toast.makeText(this, R.string.image_err_msg, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
         Api.Response.SearchImages.Hits imageData = getIntent().getParcelableExtra("data");
-//        ViewCompat.setTransitionName(mImageView, "image");
+        mImageView.setMaxScale(10f);
+        mImageView.setDoubleTapZoomScale(5f);
+        mImageView.setDoubleTapZoomDuration(250);
         mTarget = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {

@@ -35,7 +35,7 @@ public abstract class Api {
     }
 
     public interface Pixabay {
-        @GET("?key=5241194-8a3a35f267b5afa498d2faab4")
+        @GET("?key=5561261-43ab51a409273c726db86e567")
         Call<Response.SearchImages> searchImages(@QueryMap(encoded = true) Map<String, String> params);
     }
 
@@ -44,9 +44,15 @@ public abstract class Api {
         public static class SearchImages extends RequestBody {
             @SerializedName("q")
             String query;
+            @SerializedName("response_group")
+            String responseGroup;
             Integer page;
             @SerializedName("perPage")
             Integer perPage;
+
+            public SearchImages() {
+                responseGroup = "high_resolution";
+            }
 
             public SearchImages setQuery(String query) {
                 this.query = query;
@@ -170,6 +176,26 @@ public abstract class Api {
                 @SerializedName("userImageURL")
                 public String userImageURL;
 
+                /**
+                 * largeImageURL : https://pixabay.com/get/e83cb40721f31c3e815f4003e74e4097fe76e6dc1fb8114896f6c3_1280.jpg
+                 * fullHDURL : https://pixabay.com/get/e83cb40721f31c3e815f4003e74e4097fe76e6dc1fb8114896f6c3_1920.jpg
+                 * imageURL : https://pixabay.com/get/e83cb40721f31c3e815f4003e74e4097fe76e6dc1fb8114896f6c3.jpg
+                 * id_hash : bb4b32cd96264150
+                 */
+
+                @SerializedName("largeImageURL")
+                public String largeImageURL;
+                @SerializedName("fullHDURL")
+                public String fullHDURL;
+                @SerializedName("imageURL")
+                public String imageURL;
+                @SerializedName("id_hash")
+                public String idHash;
+
+
+                public Hits() {
+                }
+
                 @Override
                 public int describeContents() {
                     return 0;
@@ -198,9 +224,10 @@ public abstract class Api {
                     dest.writeInt(this.userId);
                     dest.writeString(this.user);
                     dest.writeString(this.userImageURL);
-                }
-
-                public Hits() {
+                    dest.writeString(this.largeImageURL);
+                    dest.writeString(this.fullHDURL);
+                    dest.writeString(this.imageURL);
+                    dest.writeString(this.idHash);
                 }
 
                 protected Hits(Parcel in) {
@@ -225,9 +252,13 @@ public abstract class Api {
                     this.userId = in.readInt();
                     this.user = in.readString();
                     this.userImageURL = in.readString();
+                    this.largeImageURL = in.readString();
+                    this.fullHDURL = in.readString();
+                    this.imageURL = in.readString();
+                    this.idHash = in.readString();
                 }
 
-                public static final Parcelable.Creator<Hits> CREATOR = new Parcelable.Creator<Hits>() {
+                public static final Creator<Hits> CREATOR = new Creator<Hits>() {
                     @Override
                     public Hits createFromParcel(Parcel source) {
                         return new Hits(source);

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">HelloImage</string>
+
+    <string name="image_err_msg">Sorry, there\'s something wrong with this image</string>
 </resources>
