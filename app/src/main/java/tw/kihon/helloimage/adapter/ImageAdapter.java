@@ -66,11 +66,11 @@ public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             if (mRecyclerView.getLayoutManager() instanceof StaggeredGridLayoutManager) {
                 displayWidth = (int) (Utils.displayWidth / 2 - Utils.convertDpToPixel(6f));
             }
-            double aspectRatio = (item.previewHeight) / (item.previewWidth * 1.0);
+            double aspectRatio = (item.webformatHeight) / (item.webformatWidth * 1.0);
             int displayHeight = (int) (displayWidth * aspectRatio);
             imageViewHolder.imageView.getLayoutParams().height = displayHeight;
             imageViewHolder.imageView.getLayoutParams().width = displayWidth;
-            Picasso.with(mContext.get()).load(item.previewURL).into(imageViewHolder.imageView);
+            Picasso.with(mContext.get()).load(item.webformatURL).into(imageViewHolder.imageView);
         } else {
             ((ProgressViewHolder) viewHolder).progressBar.setIndeterminate(true);
         }

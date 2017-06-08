@@ -40,6 +40,10 @@
         android:textSize="20sp"
         android:visibility="gone" />
 
+    <include layout="@layout/empty_view" />
+
+    <include layout="@layout/progress_view" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

@@ -10,9 +10,11 @@ import org.json.JSONObject;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.NoRouteToHostException;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.QueryMap;
 import tw.kihon.helloimage.BuildConfig;
+import tw.kihon.helloimage.HelloImageApplication;
 
 /**
  * Created by kihon on 2017/06/07.
@@ -46,12 +49,15 @@ public abstract class Api {
             String query;
             @SerializedName("response_group")
             String responseGroup;
+            String order;
             Integer page;
             @SerializedName("perPage")
             Integer perPage;
 
             public SearchImages() {
+                order = "popular";
                 responseGroup = "high_resolution";
+                page = 1;
             }
 
             public SearchImages setQuery(String query) {
@@ -67,6 +73,10 @@ public abstract class Api {
             public SearchImages setPerPage(int perPage) {
                 this.perPage = perPage;
                 return this;
+            }
+
+            public Integer getPage() {
+                return page;
             }
         }
 
@@ -310,6 +320,10 @@ public abstract class Api {
         @Override
         public void onFailure(Call<T> call, Throwable t) {
             Log.e(TAG, "onFailure: " + t.getMessage(), t);
+            if (t instanceof NoRouteToHostException) {
+                Toast.makeText(HelloImageApplication.getInstance().getApplicationContext(),
+                        t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

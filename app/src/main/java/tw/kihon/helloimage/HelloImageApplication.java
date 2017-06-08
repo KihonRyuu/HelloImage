@@ -44,7 +44,7 @@ public class HelloImageApplication extends Application {
                 .memoryCache(new LruCache(24000))
                 .build();
         picasso.setIndicatorsEnabled(true);
-//        picasso.setLoggingEnabled(true);
+        picasso.setLoggingEnabled(true);
         Picasso.setSingletonInstance(picasso);
     }
 

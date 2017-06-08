@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ import tw.kihon.helloimage.adapter.ImageAdapter;
 import tw.kihon.helloimage.api.Api;
 import tw.kihon.helloimage.api.ApiRequest;
 import tw.kihon.helloimage.util.Utils;
+import tw.kihon.helloimage.widget.ProgressController;
 
 public class MainActivity extends AppCompatActivity
         implements MaterialSearchView.OnQueryTextListener, MaterialSearchView.SearchViewListener {
@@ -36,12 +38,15 @@ public class MainActivity extends AppCompatActivity
     Toolbar mToolbar;
     @BindView(R.id.search_view)
     MaterialSearchView mSearchView;
+    @BindView(R.id.container)
+    ViewGroup mMainLayout;
 
     private ImageAdapter mImageAdapter;
     private List<Api.Response.SearchImages.Hits> mData;
     private Menu mMenu;
     private String mSearchQuery = "Taiwan Street";
     private Api.Response.SearchImages mResult;
+    private ProgressController mProgressController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +60,13 @@ public class MainActivity extends AppCompatActivity
         configRecyclerView();
         setListeners();
 
+        View progressView = findViewById(R.id.progressView);
+        mProgressController = new ProgressController(mRecyclerView, progressView);
         getImages(new Api.RequestBody.SearchImages().setQuery(mSearchQuery));
     }
 
-    private void getImages(Api.RequestBody.SearchImages params) {
+    private void getImages(final Api.RequestBody.SearchImages params) {
+        mProgressController.setLoading(params.getPage() != null && params.getPage() == 1);
         ApiRequest.searchImages(params, new Api.Callback<Api.Response.SearchImages>() {
             @Override
             public void onResponse(Call<Api.Response.SearchImages> call, Response<Api.Response.SearchImages> response) {
@@ -67,7 +75,7 @@ public class MainActivity extends AppCompatActivity
                     return;
                 }
                 mResult = response.body();
-                if (mData != null && mData.size() > 0) {
+                if (mData != null && mData.size() > 0 && params.getPage() > 1) {
                     int original = mData.size();
                     mData.addAll(mResult.hits);
                     mImageAdapter.notifyItemRangeInserted(original, mResult.hits.size());
@@ -76,6 +84,7 @@ public class MainActivity extends AppCompatActivity
                     mImageAdapter = new ImageAdapter(MainActivity.this, mResult.hits);
                     mRecyclerView.setAdapter(mImageAdapter);
                 }
+                mProgressController.setLoading(false);
             }
         });
     }
@@ -179,6 +188,8 @@ public class MainActivity extends AppCompatActivity
             mSearchView.closeSearch();
         }
         mSearchQuery = s;
+
+        getImages(new Api.RequestBody.SearchImages().setQuery(mSearchQuery));
         return false;
     }
 
