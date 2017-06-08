@@ -8,6 +8,13 @@
         <item name="android:windowContentTransitions">true</item>
     </style>
 
+    <style name="ThemeSwipeBack.NoActionBar" parent="Theme.Sliding">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
     <style name="ImageActivityStyle" >
 
         <item name="colorPrimaryDark">@android:color/darker_gray</item>

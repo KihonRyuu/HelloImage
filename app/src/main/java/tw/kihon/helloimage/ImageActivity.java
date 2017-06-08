@@ -2,16 +2,13 @@ package tw.kihon.helloimage;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.klinker.android.sliding.SlidingActivity;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +23,7 @@ import tw.kihon.helloimage.widget.ProgressController;
  * Created by kihon on 2017/06/07.
  */
 
-public class ImageActivity extends AppCompatActivity {
+public class ImageActivity extends SlidingActivity {
 
     @BindView(R.id.main)
     ViewGroup mMainLayout;
@@ -37,13 +34,11 @@ public class ImageActivity extends AppCompatActivity {
     private ProgressController mProgressController;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
-        setContentView(R.layout.activity_image);
+    public void init(Bundle bundle) {
+        setContent(R.layout.activity_image);
         ButterKnife.bind(this);
+        disableHeader();
+        enableFullscreen();
         View progressLayout = LayoutInflater.from(this).inflate(R.layout.progress_view, mMainLayout, false);
         mMainLayout.addView(progressLayout);
         View progressView = progressLayout.findViewById(R.id.progressView);
