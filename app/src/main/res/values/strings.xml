@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">HelloImage</string>
+
+    <string name="switch_view">Switch</string>
+    <string name="image_err_msg">Sorry, there\'s something wrong with this image</string>
+    <string name="no_data">No data.</string>
 </resources>
