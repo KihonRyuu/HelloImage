@@ -16,6 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,6 +27,7 @@ import retrofit2.Response;
 import tw.kihon.helloimage.adapter.ImageAdapter;
 import tw.kihon.helloimage.api.Api;
 import tw.kihon.helloimage.api.ApiRequest;
+import tw.kihon.helloimage.settings.SettingsUtils;
 import tw.kihon.helloimage.util.Utils;
 import tw.kihon.helloimage.widget.ProgressController;
 
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     private String mSearchQuery = "Taiwan Street";
     private Api.Response.SearchImages mResult;
     private ProgressController mProgressController;
+    private TweakedHashSet<String> mSearchSuggestions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +130,15 @@ public class MainActivity extends AppCompatActivity
         mSearchView.setEllipsize(true);
         mSearchView.setOnQueryTextListener(this);
         mSearchView.setOnSearchViewListener(this);
+        initSearchSuggestions();
+    }
+
+    private void initSearchSuggestions() {
+        mSearchSuggestions = new TweakedHashSet<>();
+        mSearchSuggestions.addAll(Arrays.asList(SettingsUtils.getSearchSuggestions()));
+        List<String> list = new ArrayList<>(mSearchSuggestions);
+        Collections.reverse(list);
+        mSearchView.setSuggestions(list.toArray(new String[list.size()]));
     }
 
     private void setListeners() {
@@ -190,6 +204,9 @@ public class MainActivity extends AppCompatActivity
             mSearchView.closeSearch();
         }
         mSearchQuery = s;
+        mSearchSuggestions.add(mSearchQuery);
+        SettingsUtils.setSearchSuggestions(mSearchSuggestions.toArray(new String[mSearchSuggestions.size()]));
+        initSearchSuggestions();
         getImages(new Api.RequestBody.SearchImages().setQuery(mSearchQuery));
         return false;
     }
@@ -201,12 +218,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSearchViewShown() {
-
     }
 
     @Override
     public void onSearchViewClosed() {
-
     }
 
     @Override
